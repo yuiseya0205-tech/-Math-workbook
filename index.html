@@ -56,7 +56,7 @@ let drills=[];
 
 function r(min,max){return Math.floor(Math.random()*(max-min+1))+min}
 
-function genProblem(lv){
+function genProblem(){
 let t=r(0,4);
 let q,a,name;
 if(t===0){let x=r(1,50),y=r(1,50);q=x+"+"+y+"=?";a=x+y;name="足し算";}
@@ -71,7 +71,7 @@ function generateFixedDrills(){
 drills=[];
 for(let i=1;i<=20;i++){
 let ps=[];
-for(let j=0;j<20;j++)ps.push(genProblem(level));
+for(let j=0;j<20;j++)ps.push(genProblem());
 drills.push({id:i,title:"ドリル"+i,kinds:"固定",problems:ps,status:"未合格"});
 }
 }
