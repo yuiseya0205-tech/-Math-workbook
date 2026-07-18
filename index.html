@@ -255,6 +255,18 @@ return level+"|"+point+"|"+clears.join(",");
 }
 
 function applySaveCode(code){
+if(code.indexOf("|")===-1){
+let lv=Math.floor(code/100000);
+let pt=code%100000;
+level=lv;
+point=pt;
+clearList=[];
+document.getElementById("level").textContent=level;
+document.getElementById("point").textContent=point;
+generateDrills();
+renderClearList();
+return true;
+}
 let parts=code.split("|");
 if(parts.length<3)return false;
 let lv=parseInt(parts[0]);
