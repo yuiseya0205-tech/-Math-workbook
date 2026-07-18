@@ -2,6 +2,7 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
+<meta name="google-site-verification" content="WYVgAFbhD_nKs5PT-tZCQ07SoEefCBqN049VzFy6dQw" />
 <title>レベル制算数ドリル</title>
 <style>
 body{font-family:sans-serif}
@@ -11,7 +12,6 @@ body{font-family:sans-serif}
 .status{font-weight:bold;color:green;margin-left:8px;width:60px;text-align:right}
 .header button{width:80px}
 .problemBox{margin:6px 0;padding:6px;border:1px solid #ccc}
-.score{margin-top:4px;font-weight:bold}
 .saveLoad{margin:10px 0;padding:6px;border:1px solid #ccc;background:#eef}
 #clearList{border:1px solid #ccc;padding:6px;background:#e0ffe0;margin:10px 0}
 #dialogBg{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);display:none;justify-content:center;align-items:center}
@@ -98,8 +98,8 @@ kinds.add(p.name);
 let kindText=Array.from(kinds).join(" / ");
 drills.push({title:"ドリル"+(i+1),kinds:kindText,problems:ps,status:"未合格"});
 }
-applyClearStatus();
 renderDrills();
+renderClearList();
 }
 
 function applyClearStatus(){
@@ -180,6 +180,7 @@ d.status="合格";
 point+=10;
 document.getElementById("point").textContent=point;
 if(!clearList.includes(d.title))clearList.push(d.title);
+applyClearStatus();
 renderClearList();
 checkComplete();
 autoSave();
@@ -252,7 +253,7 @@ c.appendChild(f);
 }
 
 function makeSaveCode(){
-let clears=clearList.map(n=>n.replace("ドリル",""));
+let clears=clearList.map(n=>parseInt(n.replace("ドリル","")));
 return level+"|"+point+"|"+clears.join(",");
 }
 
@@ -266,7 +267,7 @@ point=pt;
 clearList=[];
 document.getElementById("level").textContent=level;
 document.getElementById("point").textContent=point;
-generateDrills();
+renderDrills();
 renderClearList();
 return true;
 }
@@ -274,28 +275,34 @@ let parts=code.split("|");
 if(parts.length<3)return false;
 let lv=parseInt(parts[0]);
 let pt=parseInt(parts[1]);
-let cls=parts[2].split(",").filter(x=>x);
+let cls=parts[2].split(",").filter(x=>x).map(n=>"ドリル"+Number(n));
 if(isNaN(lv)||isNaN(pt))return false;
 level=lv;
 point=pt;
-clearList=cls.map(n=>"ドリル"+n);
+clearList=cls;
 document.getElementById("level").textContent=level;
 document.getElementById("point").textContent=point;
-generateDrills();
+applyClearStatus();
+renderDrills();
 renderClearList();
 return true;
 }
 
 function autoSave(){
+let data={
+level:level,
+point:point,
+clearList:clearList,
+drills:drills
+};
 let code=makeSaveCode();
-localStorage.setItem("drillSave",code);
+localStorage.setItem("drillData",JSON.stringify(data));
+localStorage.setItem("drillCode",code);
 document.getElementById("saveCode").textContent=code;
 }
 
 document.getElementById("saveBtn").onclick=function(){
-let code=makeSaveCode();
-document.getElementById("saveCode").textContent=code;
-localStorage.setItem("drillSave",code);
+autoSave();
 };
 
 document.getElementById("loadBtn").onclick=function(){
@@ -303,19 +310,40 @@ let code=document.getElementById("loadInput").value.trim();
 if(code==="")return;
 let ok=applySaveCode(code);
 if(ok){
-localStorage.setItem("drillSave",code);
+localStorage.setItem("drillCode",code);
+let data={level:level,point:point,clearList:clearList,drills:drills};
+localStorage.setItem("drillData",JSON.stringify(data));
 document.getElementById("saveCode").textContent=code;
 }else alert("コードが正しくありません");
 };
 
-let saved=localStorage.getItem("drillSave");
-if(saved){
-applySaveCode(saved);
-document.getElementById("saveCode").textContent=saved;
-}else{
-generateDrills();
+function loadFromStorage(){
+let s=localStorage.getItem("drillData");
+let c=localStorage.getItem("drillCode");
+if(s){
+try{
+let data=JSON.parse(s);
+if(typeof data.level==="number"&&typeof data.point==="number"&&Array.isArray(data.drills)){
+level=data.level;
+point=data.point;
+clearList=Array.isArray(data.clearList)?data.clearList:[];
+drills=data.drills;
+document.getElementById("level").textContent=level;
+document.getElementById("point").textContent=point;
+applyClearStatus();
+renderDrills();
 renderClearList();
+if(c)document.getElementById("saveCode").textContent=c;
+else document.getElementById("saveCode").textContent=makeSaveCode();
+return;
 }
+}catch(e){}
+}
+generateDrills();
+document.getElementById("saveCode").textContent="未セーブ";
+}
+
+loadFromStorage();
 </script>
 </body>
 </html>
