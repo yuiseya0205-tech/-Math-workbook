@@ -2,14 +2,14 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="google-site-verification" content="WYVgAFbhD_nKs5PT-tZCQ07SoEefCBqN049VzFy6dQw" />
 <title>レベル制算数ドリル</title>
 <style>
 body{font-family:sans-serif}
 .section{border:1px solid #ccc;margin:6px 0;padding:4px;background:#fff7e6}
 .header{display:flex;justify-content:space-between;align-items:center;background:#f6a04d;padding:4px}
-.title{font-weight:bold}
-.status{font-weight:bold;color:green;margin-left:8px}
+.title{font-weight:bold;flex:1}
+.status{font-weight:bold;color:green;margin-left:8px;width:60px;text-align:right}
+.header button{width:80px}
 .problemBox{margin:6px 0;padding:6px;border:1px solid #ccc}
 .score{margin-top:4px;font-weight:bold}
 .saveLoad{margin:10px 0;padding:6px;border:1px solid #ccc;background:#eef}
@@ -174,15 +174,16 @@ if(String(u)===String(p.a))score+=100/d.problems.length;
 }
 });
 score=Math.round(score);
-let result=score===100?"合格":"未合格";
+let result=score===100?"合格":"不合格";
 if(score===100){
 d.status="合格";
 point+=10;
 document.getElementById("point").textContent=point;
-clearList.push(d.title);
+if(!clearList.includes(d.title))clearList.push(d.title);
 renderClearList();
 checkComplete();
-}else d.status="未合格";
+autoSave();
+}else d.status="不合格";
 showDialog(d.title+" / "+result+" / "+score+"点",()=>renderDrills());
 };
 c.appendChild(f);
@@ -236,13 +237,14 @@ if(String(u)===String(p.a))score+=100/test.length;
 }
 });
 score=Math.round(score);
-let result=score===100?"合格":"未合格";
+let result=score===100?"合格":"不合格";
 showDialog("テスト結果 / "+result+" / "+score+"点",()=>{
 if(score===100){
 level++;
 if(level>30)level=30;
 document.getElementById("level").textContent=level;
 generateDrills();
+autoSave();
 }
 });
 };
@@ -258,6 +260,7 @@ function applySaveCode(code){
 if(code.indexOf("|")===-1){
 let lv=Math.floor(code/100000);
 let pt=code%100000;
+if(isNaN(lv)||isNaN(pt))return false;
 level=lv;
 point=pt;
 clearList=[];
@@ -283,20 +286,36 @@ renderClearList();
 return true;
 }
 
+function autoSave(){
+let code=makeSaveCode();
+localStorage.setItem("drillSave",code);
+document.getElementById("saveCode").textContent=code;
+}
+
 document.getElementById("saveBtn").onclick=function(){
 let code=makeSaveCode();
 document.getElementById("saveCode").textContent=code;
+localStorage.setItem("drillSave",code);
 };
 
 document.getElementById("loadBtn").onclick=function(){
 let code=document.getElementById("loadInput").value.trim();
 if(code==="")return;
 let ok=applySaveCode(code);
-if(!ok)alert("コードが正しくありません");
+if(ok){
+localStorage.setItem("drillSave",code);
+document.getElementById("saveCode").textContent=code;
+}else alert("コードが正しくありません");
 };
 
+let saved=localStorage.getItem("drillSave");
+if(saved){
+applySaveCode(saved);
+document.getElementById("saveCode").textContent=saved;
+}else{
 generateDrills();
 renderClearList();
+}
 </script>
 </body>
 </html>
