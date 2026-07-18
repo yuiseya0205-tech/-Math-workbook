@@ -151,7 +151,11 @@ f.onclick=()=>{
 let score=0;
 d.problems.forEach((p,j)=>{
 let u=document.getElementById("ans"+j).value;
+if(typeof p.a==="number"){
+if(Number(u)===p.a)score+=100/d.problems.length;
+}else{
 if(String(u)===String(p.a))score+=100/d.problems.length;
+}
 });
 score=Math.round(score);
 let result=score===100?"合格":"未合格";
@@ -206,7 +210,11 @@ f.onclick=()=>{
 let score=0;
 test.forEach((p,j)=>{
 let u=document.getElementById("tans"+j).value;
+if(typeof p.a==="number"){
+if(Number(u)===p.a)score+=100/test.length;
+}else{
 if(String(u)===String(p.a))score+=100/test.length;
+}
 });
 score=Math.round(score);
 let result=score===100?"合格":"未合格";
