@@ -2,6 +2,7 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
+<meta name="google-site-verification" content="WYVgAFbhD_nKs5PT-tZCQ07SoEefCBqN049VzFy6dQw" />
 <title>レベル制算数ドリル</title>
 <style>
 body{font-family:sans-serif}
@@ -13,6 +14,11 @@ body{font-family:sans-serif}
 .score{margin-top:4px;font-weight:bold}
 .saveLoad{margin:10px 0;padding:6px;border:1px solid #ccc;background:#eef}
 #clearList{border:1px solid #ccc;padding:6px;background:#e0ffe0;margin:10px 0}
+#dialogBg{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);display:none;justify-content:center;align-items:center}
+#dialogBox{background:#fff;padding:20px;border-radius:6px;width:300px}
+#dialogTitle{font-weight:bold;margin-bottom:10px}
+#dialogMsg{margin-bottom:20px}
+#dialogBtns{display:flex;justify-content:flex-end;gap:10px}
 </style>
 </head>
 <body>
@@ -32,6 +38,17 @@ body{font-family:sans-serif}
 <div id="drillContainer"></div>
 <div id="testContainer"></div>
 
+<div id="dialogBg">
+<div id="dialogBox">
+<div id="dialogTitle">結果</div>
+<div id="dialogMsg"></div>
+<div id="dialogBtns">
+<button id="dialogOk">OK</button>
+<button id="dialogCancel">キャンセル</button>
+</div>
+</div>
+</div>
+
 <script>
 let level=1,point=0;
 let clearList=[];
@@ -43,43 +60,15 @@ else if(lv<=10)t=r(0,6);
 else if(lv<=20)t=r(0,7);
 else t=r(0,9);
 let q,a,name;
-if(t===0){
-let x=r(1,50),y=r(1,50);
-q=x+"+"+y+"=?";a=x+y;name="足し算";
-}
-else if(t===1){
-let x=r(1,50),y=r(1,50);if(x<y){let tmp=x;x=y;y=tmp}
-q=x+"-"+y+"=?";a=x-y;name="引き算";
-}
-else if(t===2){
-let x=r(2,12),y=r(2,12);
-q=x+"×"+y+"=?";a=x*y;name="かけ算";
-}
-else if(t===3){
-let y=r(2,12),x=y*r(2,12);
-q=x+"÷"+y+"=?";a=x/y;name="わり算";
-}
-else if(t===4){
-let x=r(10,99),y=r(10,99);
-q=x+"+"+y+"=?";a=x+y;name="大きな足し算";
-}
-else if(t===5){
-let n1=r(1,9),d1=r(2,9),n2=r(1,9),d2=r(2,9);
-q=n1+"/"+d1+"+"+n2+"/"+d2+"=?(小数)";a=Number((n1/d1+n2/d2).toFixed(3));name="分数計算";
-}
-else if(t===6){
-let base=r(100,500),per=r(10,80);
-q=base+"の"+per+"%は？";a=Number((base*per/100).toFixed(2));name="割合";
-}
-else if(t===7){
-let a1=r(2,20),b1=r(2,20);
-let g=function(x,y){return y?g(y,x%y):x}(a1,b1);
-q=a1+":"+b1+"を簡単にすると？";a=(a1/g)+":"+(b1/g);name="比";
-}
-else{
-let v=r(2,20),t1=r(1,5),t2=r(1,5);
-q="時速"+v+"kmで"+t1+"時間→さらに"+t2+"時間で何km？";a=v*(t1+t2);name="速さ";
-}
+if(t===0){let x=r(1,50),y=r(1,50);q=x+"+"+y+"=?";a=x+y;name="足し算";}
+else if(t===1){let x=r(1,50),y=r(1,50);if(x<y){let tmp=x;x=y;y=tmp}q=x+"-"+y+"=?";a=x-y;name="引き算";}
+else if(t===2){let x=r(2,12),y=r(2,12);q=x+"×"+y+"=?";a=x*y;name="かけ算";}
+else if(t===3){let y=r(2,12),x=y*r(2,12);q=x+"÷"+y+"=?";a=x/y;name="わり算";}
+else if(t===4){let x=r(10,99),y=r(10,99);q=x+"+"+y+"=?";a=x+y;name="大きな足し算";}
+else if(t===5){let n1=r(1,9),d1=r(2,9),n2=r(1,9),d2=r(2,9);q=n1+"/"+d1+"+"+n2+"/"+d2+"=?(小数)";a=Number((n1/d1+n2/d2).toFixed(3));name="分数計算";}
+else if(t===6){let base=r(100,500),per=r(10,80);q=base+"の"+per+"%は？";a=Number((base*per/100).toFixed(2));name="割合";}
+else if(t===7){let a1=r(2,20),b1=r(2,20);let g=function(x,y){return y?g(y,x%y):x}(a1,b1);q=a1+":"+b1+"を簡単にすると？";a=(a1/g)+":"+(b1/g);name="比";}
+else{let v=r(2,20),t1=r(1,5),t2=r(1,5);q="時速"+v+"kmで"+t1+"時間→さらに"+t2+"時間で何km？";a=v*(t1+t2);name="速さ";}
 return {name,q,a};
 }
 function problemCount(lv){
@@ -135,6 +124,17 @@ s.appendChild(h);
 c.appendChild(s);
 });
 }
+function showDialog(msg,ok){
+document.getElementById("dialogMsg").textContent=msg;
+document.getElementById("dialogBg").style.display="flex";
+document.getElementById("dialogOk").onclick=function(){
+document.getElementById("dialogBg").style.display="none";
+if(ok)ok();
+};
+document.getElementById("dialogCancel").onclick=function(){
+document.getElementById("dialogBg").style.display="none";
+};
+}
 function startDrill(i){
 const d=drills[i];
 const c=document.getElementById("drillContainer");
@@ -154,10 +154,7 @@ let u=document.getElementById("ans"+j).value;
 if(String(u)===String(p.a))score+=100/d.problems.length;
 });
 score=Math.round(score);
-const msg=document.createElement("div");
-msg.className="score";
-msg.textContent="スコア:"+score+"点";
-c.appendChild(msg);
+let result=score===100?"合格":"未合格";
 if(score===100){
 d.status="合格";
 point+=10;
@@ -166,7 +163,7 @@ clearList.push(d.title+" (Lv"+level+")");
 renderClearList();
 checkComplete();
 }else d.status="未合格";
-setTimeout(renderDrills,1000);
+showDialog(d.title+" / "+result+" / "+score+"点",()=>renderDrills());
 };
 c.appendChild(f);
 }
@@ -212,16 +209,15 @@ let u=document.getElementById("tans"+j).value;
 if(String(u)===String(p.a))score+=100/test.length;
 });
 score=Math.round(score);
-const msg=document.createElement("div");
-msg.className="score";
-msg.textContent="テスト:"+score+"点";
-c.appendChild(msg);
+let result=score===100?"合格":"未合格";
+showDialog("テスト結果 / "+result+" / "+score+"点",()=>{
 if(score===100){
 level++;
 if(level>30)level=30;
 document.getElementById("level").textContent=level;
 generateDrills();
 }
+});
 };
 c.appendChild(f);
 }
