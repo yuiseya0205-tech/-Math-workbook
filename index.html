@@ -2,7 +2,6 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="google-site-verification" content="WYVgAFbhD_nKs5PT-tZCQ07SoEefCBqN049VzFy6dQw" />
 <title>レベル制算数ドリル</title>
 <style>
 body{font-family:sans-serif}
@@ -36,18 +35,14 @@ body{font-family:sans-serif}
 <script>
 let level=1,point=0;
 let clearList=[];
-
 function r(min,max){return Math.floor(Math.random()*(max-min+1))+min}
-
 function genProblem(lv){
 let t;
 if(lv<=5)t=r(0,4);
 else if(lv<=10)t=r(0,6);
 else if(lv<=20)t=r(0,7);
 else t=r(0,9);
-
 let q,a,name;
-
 if(t===0){
 let x=r(1,50),y=r(1,50);
 q=x+"+"+y+"=?";a=x+y;name="足し算";
@@ -85,10 +80,8 @@ else{
 let v=r(2,20),t1=r(1,5),t2=r(1,5);
 q="時速"+v+"kmで"+t1+"時間→さらに"+t2+"時間で何km？";a=v*(t1+t2);name="速さ";
 }
-
 return {name,q,a};
 }
-
 function problemCount(lv){
 if(lv<=5)return 20;
 if(lv<=10)return 25;
@@ -97,7 +90,6 @@ if(lv<=20)return 35;
 if(lv<=25)return 40;
 return 50;
 }
-
 let drills=[];
 function generateDrills(){
 drills=[];
@@ -115,11 +107,9 @@ drills.push({title:"ドリル"+(i+1),kinds:kindText,problems:ps,status:"未合�
 }
 renderDrills();
 }
-
 function renderClearList(){
 document.getElementById("clearItems").innerHTML=clearList.join("<br>");
 }
-
 function renderDrills(){
 const c=document.getElementById("drillContainer");
 c.innerHTML="";
@@ -137,7 +127,7 @@ btn.textContent="スタート";
 btn.onclick=()=>startDrill(i);
 const st=document.createElement("span");
 st.className="status";
-st.textContent=d.status==="合格"?"合格":"";
+st.textContent=d.status;
 h.appendChild(t);
 h.appendChild(btn);
 h.appendChild(st);
@@ -145,7 +135,6 @@ s.appendChild(h);
 c.appendChild(s);
 });
 }
-
 function startDrill(i){
 const d=drills[i];
 const c=document.getElementById("drillContainer");
@@ -181,12 +170,10 @@ setTimeout(renderDrills,1000);
 };
 c.appendChild(f);
 }
-
 function checkComplete(){
 let ok=drills.every(d=>d.status==="合格");
 if(ok)showTest();
 }
-
 function showTest(){
 const c=document.getElementById("testContainer");
 c.innerHTML="";
@@ -205,7 +192,6 @@ h.appendChild(btn);
 s.appendChild(h);
 c.appendChild(s);
 }
-
 function startTest(){
 let test=[];
 for(let i=0;i<100;i++)test.push(genProblem(level));
@@ -239,11 +225,9 @@ generateDrills();
 };
 c.appendChild(f);
 }
-
 function makeSaveCode(){
 return String(level*100000 + point);
 }
-
 function applySaveCode(code){
 let num=parseInt(code);
 if(isNaN(num))return false;
@@ -257,19 +241,16 @@ document.getElementById("point").textContent=point;
 generateDrills();
 return true;
 }
-
 document.getElementById("saveBtn").onclick=function(){
 let code=makeSaveCode();
 document.getElementById("saveCode").textContent=code;
 };
-
 document.getElementById("loadBtn").onclick=function(){
 let code=document.getElementById("loadInput").value.trim();
 if(code==="")return;
 let ok=applySaveCode(code);
 if(!ok)alert("コードが正しくありません");
 };
-
 generateDrills();
 renderClearList();
 </script>
